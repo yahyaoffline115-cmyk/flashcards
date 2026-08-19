@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{ deck["name"] }}</title></head>
+<body>
+  <a href="/">← Back to decks</a>
+  <h1>{{ deck["name"] }}</h1>
+
+  <form method="POST" action="/decks/{{ deck['id'] }}/cards/new">
+    <input name="front" placeholder="Front">
+    <input name="back" placeholder="Back">
+    <button type="submit">Add card</button>
+  </form>
+
+  <ul>
+    {% for card in cards %}
+      <li>{{ card["front"] }} → {{ card["back"] }}</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
