@@ -60,6 +60,21 @@ def get_due_cards(deck_id):
     conn.close()
     return cards
 
+def get_card(card_id):
+    conn = get_connection()
+    card = conn.execute("SELECT * FROM cards WHERE id = ?", (card_id,)).fetchone()
+    conn.close()
+    return card
+
+def update_card_schedule(card_id, interval, ease, due_date):
+    conn = get_connection()
+    conn.execute(
+        "UPDATE cards SET interval = ?, ease = ?, due_date = ? WHERE id = ?",
+        (interval, ease, due_date, card_id)
+    )
+    conn.commit()
+    conn.close()
+
 if __name__ == "__main__":
     init_db()
     print("Database initialized")

@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
+from datetime import date, timedelta
 import db
+import scheduler
 
 app = Flask(__name__)
 
@@ -36,6 +38,17 @@ def review(deck_id):
     if not cards:
         return render_template("done.html", deck=deck)
     return render_template("review.html", deck=deck, card=cards[0])
+
+@app.route("/cards/<int:card_id>/rate", methods=["POST"])
+def rate_card(card_id):
+    rating = int(request.form["rating"])
+    card = db.get_card(card_id)
+
+    new_interval, new_ease = scheduler.schedule(rating, card["interval"], card["ease"])
+    next_due = (date.today() + timedelta(days=new_interval)).isoformat()
+
+    db.update_card_schedule(card_id, new_interval, new_ease, next_due)
+    return redirect(url_for("review", deck_id=card["deck_id"]))
 
 if __name__ == "__main__":
     app.run(debug=True)
