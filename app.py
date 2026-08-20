@@ -8,7 +8,7 @@ db.init_db()
 
 @app.route("/")
 def home():
-    decks = db.get_decks()
+    decks = db.get_decks_with_counts()
     return render_template("index.html", decks=decks)
 
 @app.route("/decks/new", methods=["POST"])
@@ -50,6 +50,17 @@ def rate_card(card_id):
 
     db.update_card_schedule(card_id, new_interval, new_ease, next_due)
     return redirect(url_for("review", deck_id=card["deck_id"]))
+
+@app.route("/decks/<int:deck_id>/delete", methods=["POST"])
+def remove_deck(deck_id):
+    db.delete_deck(deck_id)
+    return redirect(url_for("home"))
+
+@app.route("/cards/<int:card_id>/delete", methods=["POST"])
+def remove_card(card_id):
+    card = db.get_card(card_id)
+    db.delete_card(card_id)
+    return redirect(url_for("deck_page", deck_id=card["deck_id"]))
 
 if __name__ == "__main__":
     app.run(debug=True)

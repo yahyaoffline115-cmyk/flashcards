@@ -18,6 +18,9 @@
       {% for card in cards %}
         <li class="item">
           <span class="term">{{ card["front"] }} <span>→</span> {{ card["back"] }}</span>
+          <form method="POST" action="/cards/{{ card['id'] }}/delete">
+            <button class="del" type="submit">×</button>
+          </form>
         </li>
       {% endfor %}
     </ul>

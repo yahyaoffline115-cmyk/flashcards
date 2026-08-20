@@ -75,6 +75,35 @@ def update_card_schedule(card_id, interval, ease, due_date):
     conn.commit()
     conn.close()
 
+def delete_deck(deck_id):
+    conn = get_connection()
+    conn.execute("DELETE FROM cards WHERE deck_id = ?", (deck_id,))
+    conn.execute("DELETE FROM decks WHERE id = ?", (deck_id,))
+    conn.commit()
+    conn.close()
+
+def delete_card(card_id):
+    conn = get_connection()
+    conn.execute("DELETE FROM cards WHERE id = ?", (card_id,))
+    conn.commit()
+    conn.close()
+
+def get_decks_with_counts():
+    from datetime import date
+    today = date.today().isoformat()
+    conn = get_connection()
+    decks = conn.execute("""
+        SELECT d.id, d.name,
+               COUNT(c.id) AS total,
+               SUM(CASE WHEN c.due_date <= ? THEN 1 ELSE 0 END) AS due
+        FROM decks d
+        LEFT JOIN cards c ON c.deck_id = d.id
+        GROUP BY d.id, d.name
+        ORDER BY d.name
+    """, (today,)).fetchall()
+    conn.close()
+    return decks
+
 if __name__ == "__main__":
     init_db()
     print("Database initialized")

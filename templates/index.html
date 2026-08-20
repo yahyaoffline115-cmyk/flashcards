@@ -13,6 +13,14 @@
       {% for deck in decks %}
         <li class="item">
           <a href="/decks/{{ deck['id'] }}">{{ deck["name"] }}</a>
+          {% if deck["due"] %}
+            <span class="count due">{{ deck["due"] }} due</span>
+          {% endif %}
+          <span class="count">{{ deck["total"] }} cards</span>
+          <form method="POST" action="/decks/{{ deck['id'] }}/delete"
+                onsubmit="return confirm('Delete this deck and all its cards?')">
+            <button class="del" type="submit">×</button>
+          </form>
         </li>
       {% endfor %}
     </ul>
