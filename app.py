@@ -29,5 +29,13 @@ def new_card(deck_id):
         db.create_card(deck_id, front, back)
     return redirect(url_for("deck_page", deck_id=deck_id))
 
+@app.route("/decks/<int:deck_id>/review")
+def review(deck_id):
+    deck = db.get_deck(deck_id)
+    cards = db.get_due_cards(deck_id)
+    if not cards:
+        return render_template("done.html", deck=deck)
+    return render_template("review.html", deck=deck, card=cards[0])
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -2,7 +2,7 @@
 <html>
 <head><title>{{ deck["name"] }}</title></head>
 <body>
-  <a href="/">← Back to decks</a>
+    <a href="/decks/{{ deck['id'] }}/review">Review this deck</a>
   <h1>{{ deck["name"] }}</h1>
 
   <form method="POST" action="/decks/{{ deck['id'] }}/cards/new">

@@ -49,6 +49,17 @@ def create_card(deck_id, front, back):
     conn.commit()
     conn.close()
 
+def get_due_cards(deck_id):
+    from datetime import date
+    today = date.today().isoformat()
+    conn = get_connection()
+    cards = conn.execute(
+        "SELECT * FROM cards WHERE deck_id = ? AND due_date <= ? ORDER BY due_date",
+        (deck_id, today)
+    ).fetchall()
+    conn.close()
+    return cards
+
 if __name__ == "__main__":
     init_db()
     print("Database initialized")
