@@ -141,3 +141,52 @@ button:hover { opacity: 0.88; }
 .rate small { font: 400 11px 'JetBrains Mono', monospace; opacity: 0.75; }
 
 .wide { width: 100%; margin-top: 20px; }
+
+
+[data-theme="dark"] {
+  --ink: #e8e9ee;
+  --ink-soft: #9498a6;
+  --paper: #14151a;
+  --card: #1d1f26;
+  --line: #2c2f38;
+  --accent: #35b083;
+}
+
+[data-theme="dark"] button {
+  background: #e8e9ee;
+  color: #14151a;
+}
+
+[data-theme="dark"] input[type=text] {
+  background: #1d1f26;
+  color: #e8e9ee;
+}
+[data-theme="dark"] input[type=text]::placeholder { color: #6b7080; }
+
+[data-theme="dark"] .del { background: none; color: var(--ink-soft); }
+[data-theme="dark"] .rate .r1 { background: var(--again); color: #fff; }
+[data-theme="dark"] .rate .r2 { background: var(--hard); color: #fff; }
+[data-theme="dark"] .rate .r3 { background: var(--good); color: #fff; }
+[data-theme="dark"] .rate .r4 { background: var(--easy); color: #fff; }
+
+.theme {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  padding: 8px 12px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: 16px;
+}
+
+.theme {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  padding: 8px 12px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: 16px;
+}
