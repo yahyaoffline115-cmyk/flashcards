@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head><title>Done</title></head>
-<body>
+{% extends "base.html" %}
+{% block title %}All caught up{% endblock %}
+
+{% block content %}
+  <a class="back" href="/decks/{{ deck['id'] }}">← {{ deck["name"] }}</a>
   <h1>All caught up</h1>
-  <p>No cards due in {{ deck["name"] }}.</p>
-  <a href="/">← Back to decks</a>
-</body>
-</html>
+  <p class="empty">Nothing due in this deck right now. Come back when cards are scheduled.</p>
+{% endblock %}

@@ -1,20 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head><title>{{ deck["name"] }}</title></head>
-<body>
-    <a href="/decks/{{ deck['id'] }}/review">Review this deck</a>
+{% extends "base.html" %}
+{% block title %}{{ deck["name"] }}{% endblock %}
+
+{% block content %}
+  <a class="back" href="/">← All decks</a>
   <h1>{{ deck["name"] }}</h1>
 
-  <form method="POST" action="/decks/{{ deck['id'] }}/cards/new">
-    <input name="front" placeholder="Front">
-    <input name="back" placeholder="Back">
+  <form class="row" method="POST" action="/decks/{{ deck['id'] }}/cards/new">
+    <input type="text" name="front" placeholder="Front">
+    <input type="text" name="back" placeholder="Back">
     <button type="submit">Add card</button>
   </form>
 
-  <ul>
-    {% for card in cards %}
-      <li>{{ card["front"] }} → {{ card["back"] }}</li>
-    {% endfor %}
-  </ul>
-</body>
-</html>
+  <a href="/decks/{{ deck['id'] }}/review"><button class="wide">Start review</button></a>
+
+  {% if cards %}
+    <ul class="list" style="margin-top:24px">
+      {% for card in cards %}
+        <li class="item">
+          <span class="term">{{ card["front"] }} <span>→</span> {{ card["back"] }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty" style="margin-top:24px">No cards yet. Add one above.</p>
+  {% endif %}
+{% endblock %}

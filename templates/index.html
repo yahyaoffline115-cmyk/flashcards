@@ -1,18 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head><title>Flashcards</title></head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
   <h1>My Decks</h1>
 
-  <form method="POST" action="/decks/new">
-    <input name="name" placeholder="Deck name">
+  <form class="row" method="POST" action="/decks/new">
+    <input type="text" name="name" placeholder="New deck name">
     <button type="submit">Create</button>
   </form>
 
-  <ul>
-    {% for deck in decks %}
-      <li><a href="/decks/{{ deck['id'] }}">{{ deck["name"] }}</a></li>
-    {% endfor %}
-  </ul>
-</body>
-</html>
+  {% if decks %}
+    <ul class="list">
+      {% for deck in decks %}
+        <li class="item">
+          <a href="/decks/{{ deck['id'] }}">{{ deck["name"] }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">No decks yet. Create one above to get started.</p>
+  {% endif %}
+{% endblock %}

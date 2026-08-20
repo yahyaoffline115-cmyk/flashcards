@@ -1,24 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head><title>Review</title></head>
-<body>
-  <a href="/decks/{{ deck['id'] }}">← Back</a>
-  <h1>{{ deck["name"] }}</h1>
+{% extends "base.html" %}
+{% block title %}Review{% endblock %}
 
-  <h2>{{ card["front"] }}</h2>
+{% block content %}
+  <a class="back" href="/decks/{{ deck['id'] }}">← {{ deck["name"] }}</a>
 
-  <div id="answer" style="display: none;">
-    <h3>{{ card["back"] }}</h3>
-    <form method="POST" action="/cards/{{ card['id'] }}/rate">
-      <button name="rating" value="1">Again</button>
-      <button name="rating" value="2">Hard</button>
-      <button name="rating" value="3">Good</button>
-      <button name="rating" value="4">Easy</button>
+  <div class="face">{{ card["front"] }}</div>
+
+  <div id="answer" style="display:none">
+    <div class="face rear">{{ card["back"] }}</div>
+    <form class="rate" method="POST" action="/cards/{{ card['id'] }}/rate">
+      <button class="r1" name="rating" value="1">Again</button>
+      <button class="r2" name="rating" value="2">Hard</button>
+      <button class="r3" name="rating" value="3">Good</button>
+      <button class="r4" name="rating" value="4">Easy</button>
     </form>
   </div>
 
-  <button id="show" onclick="document.getElementById('answer').style.display='block'; this.style.display='none';">
+  <button id="show" class="wide" onclick="document.getElementById('answer').style.display='block'; this.style.display='none';">
     Show answer
   </button>
-</body>
-</html>
+{% endblock %}
