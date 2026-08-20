@@ -4,6 +4,7 @@ import db
 import scheduler
 
 app = Flask(__name__)
+db.init_db()
 
 @app.route("/")
 def home():
