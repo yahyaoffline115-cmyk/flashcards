@@ -62,5 +62,19 @@ def rate_card(card_id):
     db.update_card_schedule(card_id, new_interval, new_ease, next_due)
     return redirect(url_for("review", deck_id=card["deck_id"]))
 
+@app.route("/decks/<int:deck_id>/practice/<int:index>")
+def practice(deck_id, index):
+    deck = db.get_deck(deck_id)
+    cards = db.get_cards(deck_id)
+    if not cards or index >= len(cards):
+        return render_template("practice_done.html", deck=deck, total=len(cards))
+    return render_template(
+        "practice.html",
+        deck=deck,
+        card=cards[index],
+        index=index,
+        total=len(cards)
+    )
+
 if __name__ == "__main__":
     app.run(debug=True)

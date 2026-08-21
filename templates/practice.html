@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Practice{% endblock %}
+
+{% block content %}
+  <a class="back" href="/decks/{{ deck['id'] }}">← {{ deck["name"] }}</a>
+  <p class="count">Practice · {{ index + 1 }} of {{ total }}</p>
+
+  <div class="face">{{ card["front"] }}</div>
+
+  <div id="answer" style="display:none">
+    <div class="face rear">{{ card["back"] }}</div>
+    <a href="/decks/{{ deck['id'] }}/practice/{{ index + 1 }}">
+      <button class="wide">Next card <small style="opacity:.6">space</small></button>
+    </a>
+  </div>
+
+  <button id="show" class="wide">Show answer <small style="opacity:.6">space</small></button>
+
+  <script>
+    const show = document.getElementById('show');
+    const answer = document.getElementById('answer');
+
+    show.addEventListener('click', () => {
+      answer.style.display = 'block';
+      show.style.display = 'none';
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code !== 'Space') return;
+      e.preventDefault();
+      if (answer.style.display === 'none') {
+        show.click();
+      } else {
+        window.location = "/decks/{{ deck['id'] }}/practice/{{ index + 1 }}";
+      }
+    });
+  </script>
+{% endblock %}
+
+
+{% extends "base.html" %}
+{% block title %}Practice complete{% endblock %}
+
+{% block content %}
+  <a class="back" href="/decks/{{ deck['id'] }}">← {{ deck["name"] }}</a>
+  <h1>Practice complete</h1>
+  <p class="empty">You went through all {{ total }} cards.</p>
+  <a href="/decks/{{ deck['id'] }}/practice/0"><button class="wide">Go again</button></a>
+{% endblock %}

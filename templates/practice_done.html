@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Practice complete{% endblock %}
+
+{% block content %}
+  <a class="back" href="/decks/{{ deck['id'] }}">← {{ deck["name"] }}</a>
+  <h1>Practice complete</h1>
+  <p class="empty">You went through all {{ total }} cards.</p>
+  <a href="/decks/{{ deck['id'] }}/practice/0"><button class="wide">Go again</button></a>
+{% endblock %}

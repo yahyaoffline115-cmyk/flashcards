@@ -5,4 +5,5 @@
   <a class="back" href="/decks/{{ deck['id'] }}">← {{ deck["name"] }}</a>
   <h1>All caught up</h1>
   <p class="empty">Nothing due in this deck right now. Come back when cards are scheduled.</p>
+  <a href="/decks/{{ deck['id'] }}/practice/0"><button class="wide">Practice anyway</button></a>
 {% endblock %}
