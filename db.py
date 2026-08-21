@@ -1,66 +1,86 @@
-from flask import Flask, render_template, request, redirect, url_for
-from datetime import date, timedelta
-import db
-import scheduler
+import os
+import psycopg
+from psycopg.rows import dict_row
+from datetime import date
 
-app = Flask(__name__)
-db.init_db()
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-@app.route("/")
-def home():
-    decks = db.get_decks_with_counts()
-    return render_template("index.html", decks=decks)
+def get_connection():
+    return psycopg.connect(DATABASE_URL, row_factory=dict_row)
 
-@app.route("/decks/new", methods=["POST"])
-def new_deck():
-    name = request.form["name"]
-    if name.strip():
-        db.create_deck(name)
-    return redirect(url_for("home"))
+def init_db():
+    with get_connection() as conn:
+        with open("schema.sql") as f:
+            conn.execute(f.read())
+        conn.commit()
 
-@app.route("/decks/<int:deck_id>")
-def deck_page(deck_id):
-    deck = db.get_deck(deck_id)
-    cards = db.get_cards(deck_id)
-    return render_template("deck.html", deck=deck, cards=cards)
+def create_deck(name):
+    with get_connection() as conn:
+        conn.execute("INSERT INTO decks (name) VALUES (%s)", (name,))
+        conn.commit()
 
-@app.route("/decks/<int:deck_id>/delete", methods=["POST"])
-def remove_deck(deck_id):
-    db.delete_deck(deck_id)
-    return redirect(url_for("home"))
+def get_decks():
+    with get_connection() as conn:
+        return conn.execute("SELECT * FROM decks ORDER BY name").fetchall()
 
-@app.route("/decks/<int:deck_id>/cards/new", methods=["POST"])
-def new_card(deck_id):
-    front = request.form["front"]
-    back = request.form["back"]
-    if front.strip() and back.strip():
-        db.create_card(deck_id, front, back)
-    return redirect(url_for("deck_page", deck_id=deck_id))
+def get_decks_with_counts():
+    today = date.today()
+    with get_connection() as conn:
+        return conn.execute("""
+            SELECT d.id, d.name,
+                   COUNT(c.id) AS total,
+                   COUNT(CASE WHEN c.due_date <= %s THEN 1 END) AS due
+            FROM decks d
+            LEFT JOIN cards c ON c.deck_id = d.id
+            GROUP BY d.id, d.name
+            ORDER BY d.name
+        """, (today,)).fetchall()
 
-@app.route("/cards/<int:card_id>/delete", methods=["POST"])
-def remove_card(card_id):
-    card = db.get_card(card_id)
-    db.delete_card(card_id)
-    return redirect(url_for("deck_page", deck_id=card["deck_id"]))
+def get_deck(deck_id):
+    with get_connection() as conn:
+        return conn.execute("SELECT * FROM decks WHERE id = %s", (deck_id,)).fetchone()
 
-@app.route("/decks/<int:deck_id>/review")
-def review(deck_id):
-    deck = db.get_deck(deck_id)
-    cards = db.get_due_cards(deck_id)
-    if not cards:
-        return render_template("done.html", deck=deck)
-    return render_template("review.html", deck=deck, card=cards[0])
+def delete_deck(deck_id):
+    with get_connection() as conn:
+        conn.execute("DELETE FROM decks WHERE id = %s", (deck_id,))
+        conn.commit()
 
-@app.route("/cards/<int:card_id>/rate", methods=["POST"])
-def rate_card(card_id):
-    rating = int(request.form["rating"])
-    card = db.get_card(card_id)
+def get_cards(deck_id):
+    with get_connection() as conn:
+        return conn.execute("SELECT * FROM cards WHERE deck_id = %s ORDER BY id", (deck_id,)).fetchall()
 
-    new_interval, new_ease = scheduler.schedule(rating, card["interval_days"], card["ease"])
-    next_due = date.today() + timedelta(days=new_interval)
+def get_card(card_id):
+    with get_connection() as conn:
+        return conn.execute("SELECT * FROM cards WHERE id = %s", (card_id,)).fetchone()
 
-    db.update_card_schedule(card_id, new_interval, new_ease, next_due)
-    return redirect(url_for("review", deck_id=card["deck_id"]))
+def create_card(deck_id, front, back):
+    with get_connection() as conn:
+        conn.execute(
+            "INSERT INTO cards (deck_id, front, back, due_date) VALUES (%s, %s, %s, %s)",
+            (deck_id, front, back, date.today())
+        )
+        conn.commit()
+
+def delete_card(card_id):
+    with get_connection() as conn:
+        conn.execute("DELETE FROM cards WHERE id = %s", (card_id,))
+        conn.commit()
+
+def get_due_cards(deck_id):
+    with get_connection() as conn:
+        return conn.execute(
+            "SELECT * FROM cards WHERE deck_id = %s AND due_date <= %s ORDER BY due_date",
+            (deck_id, date.today())
+        ).fetchall()
+
+def update_card_schedule(card_id, interval_days, ease, due_date):
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE cards SET interval_days = %s, ease = %s, due_date = %s WHERE id = %s",
+            (interval_days, ease, due_date, card_id)
+        )
+        conn.commit()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    init_db()
+    print("Database initialized")
