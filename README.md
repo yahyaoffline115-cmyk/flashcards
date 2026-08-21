@@ -34,6 +34,10 @@ Ease is floored at 1.3 so a difficult card can't spiral into permanent daily rep
 
 Database access is isolated in `db.py` and scheduling logic in `scheduler.py`, so the algorithm can be tested without a database and routes never write SQL directly. All queries are parameterized against injection.
 
+## Deployment
+
+Deployed on Render with PostgreSQL. Originally built on SQLite, which worked locally but lost data on every service restart — the free tier uses ephemeral disk, so file-based storage doesn't survive a redeploy. Migrated to Postgres, with the connection string supplied through an environment variable so credentials stay out of the repo.
+
 ## Running locally
 
     pip install -r requirements.txt
