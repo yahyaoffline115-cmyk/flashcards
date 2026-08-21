@@ -190,3 +190,15 @@ button:hover { opacity: 0.88; }
   border: 1px solid var(--line);
   font-size: 16px;
 }
+
+input[type=password] {
+  flex: 1;
+  min-width: 140px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+  font-size: 15px;
+  font-family: inherit;
+}
+[data-theme="dark"] input[type=password] { background: #1d1f26; color: #e8e9ee; }

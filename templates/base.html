@@ -10,6 +10,12 @@
   <button class="theme" id="theme">🌙</button>
 
   <div class="wrap">
+    {% if current_user.is_authenticated %}
+      <p class="count" style="text-align:right; margin:0 0 8px">
+        {{ current_user.email }} · <a href="/logout">Log out</a>
+      </p>
+    {% endif %}
+
     {% block content %}{% endblock %}
   </div>
 

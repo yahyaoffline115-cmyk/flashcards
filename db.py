@@ -14,16 +14,39 @@ def init_db():
             conn.execute(f.read())
         conn.commit()
 
-def create_deck(name):
+# ---------- users ----------
+
+def create_user(email, password_hash):
     with get_connection() as conn:
-        conn.execute("INSERT INTO decks (name) VALUES (%s)", (name,))
+        row = conn.execute(
+            "INSERT INTO users (email, password_hash) VALUES (%s, %s) RETURNING id",
+            (email, password_hash)
+        ).fetchone()
+        conn.commit()
+        return row["id"]
+
+def get_user_by_email(email):
+    with get_connection() as conn:
+        return conn.execute("SELECT * FROM users WHERE email = %s", (email,)).fetchone()
+
+def get_user(user_id):
+    with get_connection() as conn:
+        return conn.execute("SELECT * FROM users WHERE id = %s", (user_id,)).fetchone()
+
+# ---------- decks ----------
+
+def create_deck(user_id, name):
+    with get_connection() as conn:
+        conn.execute("INSERT INTO decks (user_id, name) VALUES (%s, %s)", (user_id, name))
         conn.commit()
 
-def get_decks():
+def get_deck(deck_id, user_id):
     with get_connection() as conn:
-        return conn.execute("SELECT * FROM decks ORDER BY name").fetchall()
+        return conn.execute(
+            "SELECT * FROM decks WHERE id = %s AND user_id = %s", (deck_id, user_id)
+        ).fetchone()
 
-def get_decks_with_counts():
+def get_decks_with_counts(user_id):
     today = date.today()
     with get_connection() as conn:
         return conn.execute("""
@@ -32,26 +55,31 @@ def get_decks_with_counts():
                    COUNT(CASE WHEN c.due_date <= %s THEN 1 END) AS due
             FROM decks d
             LEFT JOIN cards c ON c.deck_id = d.id
+            WHERE d.user_id = %s
             GROUP BY d.id, d.name
             ORDER BY d.name
-        """, (today,)).fetchall()
+        """, (today, user_id)).fetchall()
 
-def get_deck(deck_id):
+def delete_deck(deck_id, user_id):
     with get_connection() as conn:
-        return conn.execute("SELECT * FROM decks WHERE id = %s", (deck_id,)).fetchone()
-
-def delete_deck(deck_id):
-    with get_connection() as conn:
-        conn.execute("DELETE FROM decks WHERE id = %s", (deck_id,))
+        conn.execute("DELETE FROM decks WHERE id = %s AND user_id = %s", (deck_id, user_id))
         conn.commit()
+
+# ---------- cards ----------
 
 def get_cards(deck_id):
     with get_connection() as conn:
-        return conn.execute("SELECT * FROM cards WHERE deck_id = %s ORDER BY id", (deck_id,)).fetchall()
+        return conn.execute(
+            "SELECT * FROM cards WHERE deck_id = %s ORDER BY id", (deck_id,)
+        ).fetchall()
 
-def get_card(card_id):
+def get_card(card_id, user_id):
     with get_connection() as conn:
-        return conn.execute("SELECT * FROM cards WHERE id = %s", (card_id,)).fetchone()
+        return conn.execute("""
+            SELECT c.* FROM cards c
+            JOIN decks d ON d.id = c.deck_id
+            WHERE c.id = %s AND d.user_id = %s
+        """, (card_id, user_id)).fetchone()
 
 def create_card(deck_id, front, back):
     with get_connection() as conn:
